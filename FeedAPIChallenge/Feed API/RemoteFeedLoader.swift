@@ -22,6 +22,8 @@ public final class RemoteFeedLoader: FeedLoader {
 		client.get(from: url) { result in
 			if case .failure = result {
 				completion(.failure(Error.connectivity))
+			} else {
+				completion(.failure(Error.invalidData))
 			}
 		}
 	}
