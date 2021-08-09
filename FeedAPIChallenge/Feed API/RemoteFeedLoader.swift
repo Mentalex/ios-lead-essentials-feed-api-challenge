@@ -25,7 +25,7 @@ public final class RemoteFeedLoader: FeedLoader {
 				completion(.failure(Error.connectivity))
 			case let .success((data, response)):
 				if response.statusCode == 200 {
-					if let _ = try? JSONSerialization.jsonObject(with: data, options: []) {
+					if let _ = try? JSONDecoder().decode(Root.self, from: data) {
 						completion(.failure(Error.invalidData))
 					} else {
 						completion(.failure(Error.invalidData))
@@ -36,4 +36,8 @@ public final class RemoteFeedLoader: FeedLoader {
 			}
 		}
 	}
+}
+
+private struct Root: Decodable {
+	let items: [URL]
 }
