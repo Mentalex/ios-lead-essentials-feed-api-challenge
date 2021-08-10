@@ -28,8 +28,8 @@ public final class RemoteFeedLoader: FeedLoader {
 			case let .success((data, response)):
 				if response.statusCode == 200 {
 					do {
-						let root = try JSONDecoder().decode(Root.self, from: data)
-						completion(.success(root.items.map { $0.image }))
+						let images = try RemoteFeedImages.feedImages(from: data)
+						completion(.success(images))
 					} catch {
 						completion(.failure(Error.invalidData))
 					}
@@ -41,24 +41,30 @@ public final class RemoteFeedLoader: FeedLoader {
 	}
 }
 
-private struct RemoteFeedImage: Decodable {
-	let id: UUID
-	let description: String?
-	let location: String?
-	let url: URL
-
-	enum CodingKeys: String, CodingKey {
-		case id = "image_id"
-		case description = "image_desc"
-		case location = "image_loc"
-		case url = "image_url"
+private struct RemoteFeedImages {
+	private struct Root: Decodable {
+		let items: [RemoteFeedImage]
 	}
 
-	var image: FeedImage {
-		return FeedImage(id: id, description: description, location: location, url: url)
-	}
-}
+	private struct RemoteFeedImage: Decodable {
+		let id: UUID
+		let description: String?
+		let location: String?
+		let url: URL
 
-private struct Root: Decodable {
-	let items: [RemoteFeedImage]
+		enum CodingKeys: String, CodingKey {
+			case id = "image_id"
+			case description = "image_desc"
+			case location = "image_loc"
+			case url = "image_url"
+		}
+
+		var image: FeedImage {
+			return FeedImage(id: id, description: description, location: location, url: url)
+		}
+	}
+
+	static func feedImages(from data: Data) throws -> [FeedImage] {
+		return try JSONDecoder().decode(Root.self, from: data).items.map { $0.image }
+	}
 }
