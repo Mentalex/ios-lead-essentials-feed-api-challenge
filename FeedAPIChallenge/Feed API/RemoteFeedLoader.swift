@@ -40,31 +40,3 @@ public final class RemoteFeedLoader: FeedLoader {
 		}
 	}
 }
-
-private struct RemoteFeedImages {
-	private struct Root: Decodable {
-		let items: [RemoteFeedImage]
-	}
-
-	private struct RemoteFeedImage: Decodable {
-		let id: UUID
-		let description: String?
-		let location: String?
-		let url: URL
-
-		enum CodingKeys: String, CodingKey {
-			case id = "image_id"
-			case description = "image_desc"
-			case location = "image_loc"
-			case url = "image_url"
-		}
-
-		var image: FeedImage {
-			return FeedImage(id: id, description: description, location: location, url: url)
-		}
-	}
-
-	static func feedImages(from data: Data) throws -> [FeedImage] {
-		return try JSONDecoder().decode(Root.self, from: data).items.map { $0.image }
-	}
-}
