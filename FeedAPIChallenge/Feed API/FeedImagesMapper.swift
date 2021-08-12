@@ -24,10 +24,10 @@ struct FeedImagesMapper {
 		}
 	}
 
-	static func map(from data: Data, and response: HTTPURLResponse) throws -> [FeedImage] {
+	static func map(_ data: Data, from response: HTTPURLResponse) -> FeedLoader.Result {
 		guard response.statusCode == 200, let root = try? JSONDecoder().decode(Root.self, from: data) else {
-			throw RemoteFeedLoader.Error.invalidData
+			return .failure(RemoteFeedLoader.Error.invalidData)
 		}
-		return root.items.map { $0.image }
+		return .success(root.items.map { $0.image })
 	}
 }
