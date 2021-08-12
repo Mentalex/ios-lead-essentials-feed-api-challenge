@@ -32,6 +32,9 @@ internal struct RemoteFeedImages {
 	}
 
 	internal static func feedImages(from data: Data) throws -> [FeedImage] {
-		return try JSONDecoder().decode(Root.self, from: data).items.map { $0.image }
+		guard let images = try? JSONDecoder().decode(Root.self, from: data).items.map({ $0.image }) else {
+			throw RemoteFeedLoader.Error.invalidData
+		}
+		return images
 	}
 }
