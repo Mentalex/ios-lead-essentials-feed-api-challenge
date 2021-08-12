@@ -31,10 +31,10 @@ internal struct RemoteFeedImages {
 		}
 	}
 
-	internal static func feedImages(from data: Data) throws -> [FeedImage] {
-		guard let images = try? JSONDecoder().decode(Root.self, from: data).items.map({ $0.image }) else {
+	internal static func feedImages(from data: Data, and response: HTTPURLResponse) throws -> [FeedImage] {
+		guard response.statusCode == 200, let root = try? JSONDecoder().decode(Root.self, from: data) else {
 			throw RemoteFeedLoader.Error.invalidData
 		}
-		return images
+		return root.items.map { $0.image }
 	}
 }
